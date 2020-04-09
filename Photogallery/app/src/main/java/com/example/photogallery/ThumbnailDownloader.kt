@@ -16,8 +16,8 @@ private const val MESSAGE_DOWNLOAD = 0
 
 class ThumbnailDownloader<in T>(
     private val responseHandler: Handler,
-    private val onThumbnailDownloaded: (T, Bitmap) -> Unit)
-    : HandlerThread(TAG) {
+    private val onThumbnailDownloaded: (T, Bitmap) -> Unit
+) : HandlerThread(TAG) {
 
     val fragmentLifecycleObserver: LifecycleObserver =
         object : LifecycleObserver {
@@ -47,11 +47,11 @@ class ThumbnailDownloader<in T>(
             }
         }
 
-
     private var hasQuit = false
     private lateinit var requestHandler: Handler
     private val requestMap = ConcurrentHashMap<T, String>()
     private val flickrFetchr = FlickrFetchr()
+
 
     @Suppress("UNCHECKED_CAST")
     @SuppressLint("HandlerLeak")
@@ -78,6 +78,7 @@ class ThumbnailDownloader<in T>(
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target)
             .sendToTarget()
     }
+
     fun clearQueue() {
         requestHandler.removeMessages(MESSAGE_DOWNLOAD)
         requestMap.clear()
