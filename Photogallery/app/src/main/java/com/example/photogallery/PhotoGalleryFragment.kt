@@ -13,7 +13,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -27,8 +27,12 @@ class PhotoGalleryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         retainInstance = true
-        photoGalleryViewModel = ViewModelProvider(this).get(PhotoGalleryViewModel::class.java)
+
+        photoGalleryViewModel =
+            ViewModelProviders.of(this).get(PhotoGalleryViewModel::class.java)
+
         val responseHandler = Handler()
         thumbnailDownloader =
             ThumbnailDownloader(responseHandler) { photoHolder, bitmap ->
@@ -42,11 +46,12 @@ class PhotoGalleryFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         viewLifecycleOwner.lifecycle.addObserver(
             thumbnailDownloader.viewLifecycleObserver
         )
         val view = inflater.inflate(R.layout.fragment_photo_gallery, container, false)
+
         photoRecyclerView = view.findViewById(R.id.photo_recycler_view)
         photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
 
@@ -55,7 +60,6 @@ class PhotoGalleryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         photoGalleryViewModel.galleryItemLiveData.observe(
             viewLifecycleOwner,
             Observer { galleryItems ->
@@ -69,7 +73,6 @@ class PhotoGalleryFragment : Fragment() {
         thumbnailDownloader.clearQueue()
         viewLifecycleOwner.lifecycle.removeObserver(
             thumbnailDownloader.viewLifecycleObserver
-
         )
     }
 
@@ -80,15 +83,18 @@ class PhotoGalleryFragment : Fragment() {
         )
     }
 
-    private class PhotoHolder(private val itemImageView: ImageView)
-        : RecyclerView.ViewHolder(itemImageView) {
-        val bindDrawable: (Drawable) -> Unit  = itemImageView::setImageDrawable
+    private class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) {
+
+        val bindDrawable: (Drawable) -> Unit = itemImageView::setImageDrawable
     }
 
     private inner class PhotoAdapter(private val galleryItems: List<GalleryItem>) :
         RecyclerView.Adapter<PhotoHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): PhotoHolder {
             val view = layoutInflater.inflate(
                 R.layout.list_item_gallery,
                 parent,
@@ -108,8 +114,6 @@ class PhotoGalleryFragment : Fragment() {
             holder.bindDrawable(placeholder)
             thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
         }
-
-
     }
 
     companion object {
